@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: course_postgres
+    environment:
+      POSTGRES_DB: course_db
+      POSTGRES_USER: course_user
+      POSTGRES_PASSWORD: course_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - course_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U course_user -d course_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Course.Api/Dockerfile
+    container_name: course_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=course_db;Username=course_user;Password=course_password
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=CourseApi
+      - Jwt__Audience=CourseApiUsers
+    ports:
+      - "5002:8080"
+      - "5003:443"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - course_network
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+
+networks:
+  course_network:
+    driver: bridge
