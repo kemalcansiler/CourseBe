@@ -315,11 +315,6 @@ Key dependencies:
 
 This project is licensed under the MIT License.
 
-## 👤 Author
-
-**Kemal Can Siler**
-- GitHub: [@kemalcansiler](https://github.com/kemalcansiler)
-
 ## 🙏 Acknowledgments
 
 - Built with ASP.NET Core
